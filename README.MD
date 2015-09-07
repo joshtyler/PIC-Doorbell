@@ -4,7 +4,7 @@ A remotely controlled doorbell project created using two PIC16F84A microcontroll
 
 This was a group project created for a university lab class. I was primarily responsible for the creation of the code, and schematic design, however I also assisted with PCB layout.
 
-![Final image](https://github.com/joshtyler/PIC-Doorbell/raw/master/docs/img/final.jpg "Remote and receiver together")
+![Final image](https://raw.githubusercontent.com/joshtyler/PIC-Doorbell/master/docs/img/final.JPG "Remote and receiver together")
 
 The project features a remote control which uses a custom IR modulation scheme to activate a tune on the receiver.
 
