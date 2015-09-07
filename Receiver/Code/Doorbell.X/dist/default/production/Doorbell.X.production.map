@@ -1,0 +1,110 @@
+MPLINK 4.50, Linker
+Linker Map File - Created Tue Dec 17 16:10:58 2013
+
+                                 Section Info
+                  Section       Type    Address   Location Size(Bytes)
+                ---------  ---------  ---------  ---------  ---------
+                   .org_0       code   0x000000    program   0x000002
+                   .cinit    romdata   0x000001    program   0x000004
+                   .org_1       code   0x000004    program   0x0003a4
+.config_2007_BUILD/DEFAULT/PRODUCTION/DOORBEL       code   0x002007    program   0x000002
+
+
+
+                              Program Memory Usage 
+                               Start         End      
+                           ---------   ---------      
+                            0x000000    0x000002      
+                            0x000004    0x0001d5      
+                            0x002007    0x002007      
+            470 out of 1094 program addresses used, program memory utilization is 42%
+
+
+
+                              Symbols - Sorted by Name
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+              RetSDurMult   0x000038    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                 delay3ms   0x00012f    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                 delay6ms   0x00012b    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                delayLoop   0x000132    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                   eeRead   0x0001d0    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                  eeWrite   0x0001c1    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+              eeWriteLoop   0x0001cb    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+              getTuneData   0x0001a3    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                innerLoop   0x000134    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+              irDecodeLkp   0x000025    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                irFailure   0x000129    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+              lookupPitch   0x000017    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                 mainLoop   0x000102    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                 noteLoop   0x00018f    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                outerLoop   0x000137    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                playANote   0x00018c    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                playATune   0x000192    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                processIr   0x000118    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                    prog2   0x000143    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                    prog3   0x00014b    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                    prog4   0x000153    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                    prog5   0x00015b    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                    prog6   0x000163    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                    prog7   0x00016b    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                   progEe   0x000181    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                  progSkp   0x000172    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                 progTune   0x00013b    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                retFrmInt   0x000014    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+              retProgTune   0x00017a    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+               setDurMult   0x00002a    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                 setPitch   0x0001ae    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                    setup   0x0000f2    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+               skipToggle   0x00000e    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                skpPATRet   0x00019c    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                    tune1   0x00003b    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                    tune2   0x000070    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                    tune3   0x000099    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                    tune4   0x0000f0    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+
+
+
+                              Symbols - Sorted by Address
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+               skipToggle   0x00000e    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                retFrmInt   0x000014    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+              lookupPitch   0x000017    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+              irDecodeLkp   0x000025    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+               setDurMult   0x00002a    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+              RetSDurMult   0x000038    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                    tune1   0x00003b    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                    tune2   0x000070    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                    tune3   0x000099    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                    tune4   0x0000f0    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                    setup   0x0000f2    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                 mainLoop   0x000102    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                processIr   0x000118    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                irFailure   0x000129    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                 delay6ms   0x00012b    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                 delay3ms   0x00012f    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                delayLoop   0x000132    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                innerLoop   0x000134    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                outerLoop   0x000137    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                 progTune   0x00013b    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                    prog2   0x000143    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                    prog3   0x00014b    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                    prog4   0x000153    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                    prog5   0x00015b    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                    prog6   0x000163    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                    prog7   0x00016b    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                  progSkp   0x000172    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+              retProgTune   0x00017a    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                   progEe   0x000181    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                playANote   0x00018c    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                 noteLoop   0x00018f    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                playATune   0x000192    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                skpPATRet   0x00019c    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+              getTuneData   0x0001a3    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                 setPitch   0x0001ae    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                  eeWrite   0x0001c1    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+              eeWriteLoop   0x0001cb    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+                   eeRead   0x0001d0    program     static C:\Users\Joshua\Dropbox\My Documents\Uni work\Second Year\LDPS III PIC Stuff\Doorbell.X\doorbell_main.asm
+
+

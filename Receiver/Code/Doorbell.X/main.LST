@@ -1,0 +1,244 @@
+MPASM  5.52                          MAIN.ASM   10-30-2013  14:59:22         PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00001  ; File testprogram.asm
+                      00002  ; Blinks an LED
+                      00003 
+                      00004  ; Configure environment for pic
+                      00005  LIST p=16F84A
+                      00006  include "p16f84a.inc"
+                      00001         LIST
+                      00002 
+                      00003 ;==========================================================================
+                      00004 ;  MPASM PIC16F84A processor include
+                      00005 ; 
+                      00006 ;  (c) Copyright 1999-2013 Microchip Technology, All rights reserved
+                      00007 ;==========================================================================
+                      00008 
+                      00208         LIST
+                      00007 
+Warning[205]: Found directive in column 1. (CBLOCK)
+                      00008 CBLOCK 0x10
+  00000010            00009 temp0
+  00000011            00010 temp1
+Warning[205]: Found directive in column 1. (ENDC)
+                      00011 ENDC
+                      00012 
+                      00013 ; Set Watchdog timer off - stops device rebooting
+                      00014 ; and powerup timer on - imposes delay to stabilise 5V rail
+                      00015 
+Warning[205]: Found directive in column 1. (__config)
+2007   3FF1           00016 __config _XT_OSC & _WDT_OFF & _PWRTE_ON
+                      00017 
+                      00018 ; Main Program
+                      00019 
+Warning[205]: Found directive in column 1. (org)
+0000                  00020 org 0   ; start next instruction at address 0
+                      00021 
+                      00022 ; set Port B to output and initialise it
+0000   3000           00023             movlw   B'00000000' ; movlw moves a literal string into the working register
+Warning[224]: Use of this instruction is not recommended.
+0001   0066           00024             tris    PORTB       ; tris sets up the pins of a register for input or output based on W
+0002   30FF           00025             movlw   B'11111111' ; movlw moves a literal string into the working register
+Warning[224]: Use of this instruction is not recommended.
+0003   0065           00026             tris    PORTA       ; tris sets up the pins of a register for input or output based on W
+                      00027                     ; a 0 means output, a 1 means input
+0004   1805           00028 mainloop    btfsc   PORTA,0
+0005   2809           00029             goto    note1
+0006   1885           00030             btfsc   PORTA,1
+0007   2818           00031             goto    note2
+0008   2804           00032             goto    mainloop
+0009   3001           00033 note1       movlw   B'00000001' ; Put LSB of W high
+000A   0086           00034             movwf   PORTB       ; Move data from working register to register f
+000B   3002           00035             movlw   B'00000010'         ;value for more significant register
+000C   0090           00036             movwf   temp0
+000D   30FF           00037             movlw   B'11111111'        ;value for less significant register
+000E   3011           00038             movlw   temp1
+MPASM  5.52                          MAIN.ASM   10-30-2013  14:59:22         PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000F   2027           00039             call    wastetime
+0010   3000           00040             movlw   B'00000000'
+0011   0086           00041             movwf   PORTB       ; Move data from working register to register f
+0012   3002           00042             movlw   B'00000010'         ;value for more significant register
+0013   0090           00043             movwf   temp0
+0014   30FF           00044             movlw   B'11111111'        ;value for less significant register
+0015   3011           00045             movlw   temp1
+0016   2027           00046             call    wastetime
+0017   2804           00047             goto    mainloop
+0018   3001           00048 note2       movlw   B'00000001' ; Put LSB of W high
+0019   0086           00049             movwf   PORTB       ; Move data from working register to register f
+001A   300E           00050             movlw   B'00001110'         ;value for more significant register
+001B   0090           00051             movwf   temp0
+001C   30FF           00052             movlw   B'11111111'        ;value for less significant register
+001D   3011           00053             movlw   temp1
+001E   2027           00054             call    wastetime
+001F   3000           00055             movlw   B'00000000'
+0020   0086           00056             movwf   PORTB       ; Move data from working register to register f
+Warning[209]: Missing quote
+0021   3003           00057             movlw   B'000011
+Error[108]  : Illegal character (1)
+0021   3003           00058 10'         ;value for more significant register
+0022   0090           00059             movwf   temp0
+0023   30FF           00060             movlw   B'11111111'        ;value for less significant register
+0024   3011           00061             movlw   temp1
+0025   2027           00062             call    wastetime
+0026   2804           00063             goto    mainloop
+                      00064 
+                      00065 
+                      00066 
+                      00067 
+Message[305]: Using default destination of 1 (file).
+0027   0B90           00068 wastetime   decfsz temp0    ;decrement, skip if zero
+0028   282A           00069             goto inner
+0029   3400           00070             retlw 0
+Message[305]: Using default destination of 1 (file).
+002A   0B91           00071 inner       decfsz temp1    ;decrement, skip if zero
+002B   282A           00072             goto inner
+002C   30FF           00073             movlw B'11111111'
+002D   0091           00074             movwf temp1
+002E   2827           00075             goto wastetime
+                      00076             end
+MPASM  5.52                          MAIN.ASM   10-30-2013  14:59:22         PAGE  3
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+C                                 00000000
+DC                                00000001
+EEADR                             00000009
+EECON1                            00000088
+EECON2                            00000089
+EEDATA                            00000008
+EEIE                              00000006
+EEIF                              00000004
+F                                 00000001
+FSR                               00000004
+GIE                               00000007
+INDF                              00000000
+INTCON                            0000000B
+INTE                              00000004
+INTEDG                            00000006
+INTF                              00000001
+IRP                               00000007
+NOT_PD                            00000003
+NOT_RBPU                          00000007
+NOT_TO                            00000004
+OPTION_REG                        00000081
+PCL                               00000002
+PCLATH                            0000000A
+PORTA                             00000005
+PORTB                             00000006
+PS0                               00000000
+PS1                               00000001
+PS2                               00000002
+PSA                               00000003
+RA0                               00000000
+RA1                               00000001
+RA2                               00000002
+RA3                               00000003
+RA4                               00000004
+RB0                               00000000
+RB1                               00000001
+RB2                               00000002
+RB3                               00000003
+RB4                               00000004
+RB5                               00000005
+RB6                               00000006
+RB7                               00000007
+RBIE                              00000003
+RBIF                              00000000
+RD                                00000000
+RP0                               00000005
+RP1                               00000006
+STATUS                            00000003
+T0CS                              00000005
+T0IE                              00000005
+T0IF                              00000002
+T0SE                              00000004
+TMR0                              00000001
+MPASM  5.52                          MAIN.ASM   10-30-2013  14:59:22         PAGE  4
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TMR0IE                            00000005
+TMR0IF                            00000002
+TRISA                             00000085
+TRISA0                            00000000
+TRISA1                            00000001
+TRISA2                            00000002
+TRISA3                            00000003
+TRISA4                            00000004
+TRISB                             00000086
+TRISB0                            00000000
+TRISB1                            00000001
+TRISB2                            00000002
+TRISB3                            00000003
+TRISB4                            00000004
+TRISB5                            00000005
+TRISB6                            00000006
+TRISB7                            00000007
+W                                 00000000
+WR                                00000001
+WREN                              00000002
+WRERR                             00000003
+Z                                 00000002
+_CONFIG                           00002007
+_CP_OFF                           00003FFF
+_CP_ON                            0000000F
+_DEVID1                           00002006
+_FOSC_EXTRC                       00003FFF
+_FOSC_HS                          00003FFE
+_FOSC_LP                          00003FFC
+_FOSC_XT                          00003FFD
+_HS_OSC                           00003FFE
+_IDLOC0                           00002000
+_IDLOC1                           00002001
+_IDLOC2                           00002002
+_IDLOC3                           00002003
+_LP_OSC                           00003FFC
+_PWRTE_OFF                        00003FFF
+_PWRTE_ON                         00003FF7
+_RC_OSC                           00003FFF
+_WDTE_OFF                         00003FFB
+_WDTE_ON                          00003FFF
+_WDT_OFF                          00003FFB
+_WDT_ON                           00003FFF
+_XT_OSC                           00003FFD
+__16F84A                          00000001
+inner                             0000002A
+mainloop                          00000004
+note1                             00000009
+note2                             00000018
+temp0                             00000010
+temp1                             00000011
+wastetime                         00000027
+MPASM  5.52                          MAIN.ASM   10-30-2013  14:59:22         PAGE  5
+
+
+MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
+
+
+0000 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXX- ----------------
+2000 : -------X-------- ---------------- ---------------- ----------------
+
+All other memory blocks unused.
+
+Program Memory Words Used:    47
+Program Memory Words Free:   977
+
+
+Errors   :     1
+Warnings :     7 reported,     0 suppressed
+Messages :     2 reported,     0 suppressed
+
+

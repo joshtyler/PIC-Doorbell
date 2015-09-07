@@ -1,0 +1,1135 @@
+MPASM  5.52                 DOORBELL_MAIN.ASM   12-17-2013  16:10:58         PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00001 ; File doorbell_main.asm
+                      00002 ; LDPS III Lab Project: Joshua Tyler, Le Hoang, Vilme Wilke and Umair Hassan
+                      00003 ; Plays 4 different melodies when 4 different buttons are pressed
+                      00004 ; CODE FOR DOORBELL
+                      00005 
+                      00006 ; Configure environment for pic
+                      00007             LIST p=16F84A
+                      00008             include "p16f84a.inc"
+                      00001         LIST
+                      00002 
+                      00003 ;==========================================================================
+                      00004 ;  MPASM PIC16F84A processor include
+                      00005 ; 
+                      00006 ;  (c) Copyright 1999-2013 Microchip Technology, All rights reserved
+                      00007 ;==========================================================================
+                      00008 
+                      00208         LIST
+                      00009 
+                      00010 ; Remove the annoying "Register in operand not in bank 0..." warnings.
+                      00011             errorlevel  -302
+                      00012 
+                      00013 ; Set up constants
+                      00014     ; These are the constants used for notesin the tune tables.
+                      00015     ; The less signigicant nibble is an encoded number representing the note.
+                      00016         ; e.g. H'X0' is a C, H'X1' is a C#, H'X2' is a D etc.
+                      00017     ; The more significant nibble is the TMR0 scaler. This corresponds to the octave the note is in.
+                      00018     ; This system works because the frequency of a note in each successive octave is double the frequenc
+                            y of that note in the last octave.
+                      00019     ; A scaler value of 2 corresponds to a tmr0 scaling ratio of 1:8, which corresponds to the octave st
+                            arting on C4 (middle C)
+                      00020     ; A scaler value of 3 corresponds to a tmr0 scaling ratio of 1:16, which corresponds to the octave s
+                            tarting on C3
+                      00021     ; etc.
+                      00022 
+  00000050            00023 C1          equ     H'50'
+  00000051            00024 C#1         equ     H'51'
+  00000052            00025 D1          equ     H'52'
+  00000053            00026 D#1         equ     H'53'
+  00000054            00027 E1          equ     H'54'
+  00000055            00028 F1          equ     H'55'
+  00000056            00029 F#1         equ     H'56'
+  00000057            00030 G1          equ     H'57'
+  00000058            00031 G#1         equ     H'58'
+  00000059            00032 A1          equ     H'59'
+  0000005A            00033 A#1         equ     H'5A'
+  0000005B            00034 B1          equ     H'5B'
+                      00035 
+  00000040            00036 C2          equ     H'40'
+  00000041            00037 C#2         equ     H'41'
+  00000042            00038 D2          equ     H'42'
+  00000043            00039 D#2         equ     H'43'
+  00000044            00040 E2          equ     H'44'
+  00000045            00041 F2          equ     H'45'
+MPASM  5.52                 DOORBELL_MAIN.ASM   12-17-2013  16:10:58         PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+  00000046            00042 F#2         equ     H'46'
+  00000047            00043 G2          equ     H'47'
+  00000048            00044 G#2         equ     H'48'
+  00000049            00045 A2          equ     H'49'
+  0000004A            00046 A#2         equ     H'4A'
+  0000004B            00047 B2          equ     H'4B'
+                      00048 
+  00000030            00049 C3          equ     H'30'
+  00000031            00050 C#3         equ     H'31'
+  00000032            00051 D3          equ     H'32'
+  00000033            00052 D#3         equ     H'33'
+  00000034            00053 E3          equ     H'34'
+  00000035            00054 F3          equ     H'35'
+  00000036            00055 F#3         equ     H'36'
+  00000037            00056 G3          equ     H'37'
+  00000038            00057 G#3         equ     H'38'
+  00000039            00058 A3          equ     H'39'
+  0000003A            00059 A#3         equ     H'3A'
+  0000003B            00060 B3          equ     H'3B'
+                      00061 
+  00000020            00062 C4          equ     H'20'       ; Middle C
+  00000021            00063 C#4         equ     H'21'
+  00000022            00064 D4          equ     H'22'
+  00000023            00065 D#4         equ     H'23'
+  00000024            00066 E4          equ     H'24'
+  00000025            00067 F4          equ     H'25'
+  00000026            00068 F#4         equ     H'26'
+  00000027            00069 G4          equ     H'27'
+  00000028            00070 G#4         equ     H'28'
+  00000029            00071 A4          equ     H'29'
+  0000002A            00072 A#4         equ     H'2A'
+  0000002B            00073 B4          equ     H'2B'
+                      00074 
+  00000010            00075 C5          equ     H'10'
+  00000011            00076 C#5         equ     H'11'
+  00000012            00077 D5          equ     H'12'
+  00000013            00078 D#5         equ     H'13'
+  00000014            00079 E5          equ     H'14'
+  00000015            00080 F5          equ     H'15'
+  00000016            00081 F#5         equ     H'16'
+  00000017            00082 G5          equ     H'17'
+  00000018            00083 G#5         equ     H'18'
+  00000019            00084 A5          equ     H'19'
+  0000001A            00085 A#5         equ     H'1A'
+  0000001B            00086 B5          equ     H'1B'
+                      00087 
+  00000000            00088 C6          equ     H'00'
+  00000001            00089 C#6         equ     H'01'
+  00000002            00090 D6          equ     H'02'
+  00000003            00091 D#6         equ     H'03'
+  00000004            00092 E6          equ     H'04'
+  00000005            00093 F6          equ     H'05'
+  00000006            00094 F#6         equ     H'06'
+MPASM  5.52                 DOORBELL_MAIN.ASM   12-17-2013  16:10:58         PAGE  3
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+  00000007            00095 G6          equ     H'07'
+  00000008            00096 G#6         equ     H'08'
+  00000009            00097 A6          equ     H'09'
+  0000000A            00098 A#6         equ     H'0A'
+  0000000B            00099 B6          equ     H'0B'
+                      00100 
+  0000002C            00101 rest        equ     H'2C'   ; Rest nominally has the scaler of 2, in reality this value doesn't matter.
+                      00102 
+                      00103     ; These are the note durations, they are used in a counter in the inturrupt loop.
+  00000083            00104 C_dur       equ     D'131'
+  0000008B            00105 C#_dur      equ     D'139'
+  00000093            00106 D_dur       equ     D'147'
+  0000009C            00107 D#_dur      equ     D'156'
+  000000A5            00108 E_dur       equ     D'165'
+  000000AF            00109 F_dur       equ     D'175'
+  000000B9            00110 F#_dur      equ     D'185'
+  000000C4            00111 G_dur       equ     D'196'
+  000000D0            00112 G#_dur      equ     D'208'
+  000000DC            00113 A_dur       equ     D'220'
+  000000E9            00114 A#_dur      equ     D'233'
+  000000F7            00115 B_dur       equ     D'247'
+                      00116 
+  0000006E            00117 rest_dur    equ     D'110' ; The rest duration is the same as an 'A'. This is explained in the interrupt
+                             loop.
+                      00118 
+  0000002C            00119 finish_pit  equ     H'2C' ; finish1 is the "pitch" of the finish command. It doesn't actually matter wha
+                            t this is (so long as it works in the look-up tables), so H'2C' is chosen.
+  00000000            00120 finish_dur  equ     H'00' ; finish2 is the "duration" of the finish value. This is zero because the play
+                            atune subroutine interprets a duration of zero as the end of the tune.
+                      00121 
+                      00122 
+                      00123 ; Assign variables in RAM, H'0C' is the first General purpose SRAM register
+                      00124             CBLOCK H'0C'
+  0000000C            00125             intTemp         ; INTerrupt TEMPorary storage (used to preserve W when the interrupt is call
+                            ed)
+  0000000D            00126             duration        ; Holds the duration of each note (see interrupt for details of how this wor
+                            ks)
+  0000000E            00127             durMult         ; DURation MULTiplier (see interrupt for details of how this works)
+  0000000F            00128             pitch           ; Holds the initial TMR0 value for each note.
+  00000010            00129             tneLkpOfst      ; TuNE LooKuP OFfSeT (The lookup offset for the tune tables)
+  00000011            00130             tuneSelect      ; Holds the tune currently being played, see mainloop for details of the for
+                            mat
+  00000012            00131             tmr0Scaler      ; Holds the TMR0 scaler, to select the correct octave. See setpitch for deta
+                            ils of how it is used
+  00000013            00132             setPitchTemp    ; Temporary storage for the setpitch subroutine (used to preserve W when the
+                             subroutine is called)
+  00000014            00133             setDurMultTmp   ; setdurmult TeMPorary storage  (used to preserve W when setdurmult is calle
+                            d)
+  00000015            00134             outerLpCntr     ; These are loop counters used by delay6ms and delay3ms
+  00000016            00135             innerLpCntr
+  00000017            00136             delay3msTmp     ; This is used to preserve W when delay6ms and delay 3ms are called
+                      00137             ENDC
+                      00138 
+MPASM  5.52                 DOORBELL_MAIN.ASM   12-17-2013  16:10:58         PAGE  4
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00139 ; Setup configuration values for the microcontroller
+                      00140             ; Set Watchdog timer off - stops device rebooting
+                      00141             ; Set powerup timer on - imposes small delay on startup to allow voltage rail to stabilise
+2007   3FF1           00142             __config _XT_OSC & _WDT_OFF & _PWRTE_ON
+                      00143 
+                      00144 ; Set up where instructions are stored
+                      00145             org H'0000'   ; address 0: this is where the reset vector goes to.
+0000   2???           00146             goto setup
+                      00147             org H'0004'   ; address 0: this is where the interrupt vector goes to.
+                      00148 ; Interrupt Routine
+0004   008C           00149             movwf   intTemp         ; Preserve contents of working register
+                      00150             ; reset tmr0  initial count
+0005   080F           00151             movf    pitch,W         ; Move pitch to W
+0006   1903           00152             btfsc   STATUS,Z        ; skip if pitch is not zero
+0007   3072           00153             movlw   D'114'          ; If "pitch" is zero, put D'114' (the pitch of an A) into TMR0, allo
+                            ws the duration of a rest to be accurately defined
+0008   0081           00154             movwf   TMR0
+                      00155             ; toggle output
+0009   080F           00156             movf    pitch,W         ; Test if pitch is zero
+000A   1903           00157             btfsc   STATUS,Z        ; If pitch is zero the note is a rest, so don't toggle the output
+000B   2???           00158             goto    skipToggle
+000C   3001           00159             movlw   B'00000001'     ; Toggle output (PORTA, Pin 0) by XORing this with PORTA
+000D   0685           00160             xorwf   PORTA,F
+                      00161             ; Note length handler, this makes the note last [durMult] * [duration] half cycles of the no
+                            te.
+000E   0B8E           00162 skipToggle  decfsz  durMult,F       ; decrement durMult (DURation MULTiplier)
+000F   2???           00163             goto    retFrmInt       ; RETurn From Interrupt
+0010   2???           00164             call    setDurMult      ; if durmult is zero then reset durMult and decrement duration
+0011   0B8D           00165             decfsz  duration,F      ; if duration is zero, clear the interrupt flag.
+0012   2???           00166             goto    retFrmInt
+0013   128B           00167             bcf     INTCON, T0IE ; disable TMR0 interrupt enable, this stops the interrupt from being ca
+                            lled
+0014   080C           00168 retFrmInt   movf    intTemp,W     ; return previous contents of working register
+0015   110B           00169             bcf     INTCON,T0IF ; clear tmr0 overflow flag, this allows the interrupt to be called again
+                             (if the TMR0 interrupt enable is 1)
+0016   0009           00170             retfie
+                      00171 
+                      00172 ; Lookup Table Functions
+                      00173     ; The lookup table functions are placed here to ensure that they do not cross a page boundry
+                      00174 
+                      00175             ; This function returns the initial TMR0 value for each note
+0017   0782           00176 lookupPitch addwf   PCL,F   ; Skip [W] instructions
+0018   3411           00177             retlw   D'17'   ; C
+0019   341F           00178             retlw   D'31'   ; C#
+001A   342B           00179             retlw   D'43'   ; D
+001B   3437           00180             retlw   D'55'   ; D#
+001C   3442           00181             retlw   D'66'   ; E
+001D   344D           00182             retlw   D'77'   ; F
+001E   3457           00183             retlw   D'87'   ; F#
+001F   3461           00184             retlw   D'97'   ; G
+0020   346A           00185             retlw   D'106'  ; G#
+0021   3472           00186             retlw   D'114'  ; A
+0022   347A           00187             retlw   D'122'  ; A#
+MPASM  5.52                 DOORBELL_MAIN.ASM   12-17-2013  16:10:58         PAGE  5
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0023   3481           00188             retlw   D'129'  ; B
+0024   3400           00189             retlw   D'0'    ; Rest
+                      00190 
+                      00191 ; This function decodes the binary word recieved by ir and converts it to a value used by mainloop
+0025   0782           00192 irDecodeLkp addwf   PCL,F   ; Skip [W] instructions
+0026   3401           00193             retlw   B'00000001'
+0027   3402           00194             retlw   B'00000010'
+0028   3404           00195             retlw   B'00000100'
+0029   3408           00196             retlw   B'00001000'
+                      00197 
+                      00198             ; This function sets the multiplier for the duration.
+                      00199             ; This is necessary because the duration is calculated by counting the number of times the i
+                            nterrupt is called.
+                      00200             ; The same note in sequential octaves will have twice the frequency, so will call the interr
+                            upt twice as many times.
+                      00201                 ; This is why the sequential return values are double eachother
+                      00202             ; The value used as a lookup offset is the tmr0Scaler
+                      00203                 ; This is 5 for the lowest ocave, 4 for the second to lowest etc.
+002A   0094           00204 setDurMult  movwf   setDurMultTmp   ; Preserve W
+002B   0D12           00205             rlf     tmr0Scaler,W    ; Move double tmr0Scaler to W
+002C   0782           00206             addwf   PCL,F           ; Skip 2*[tmr0Scaler] instructions
+002D   3020           00207             movlw   D'32'           ; Put 32 in W
+002E   2???           00208             goto    RetSDurMult     ; RETurn from Setting DURMULT
+002F   3010           00209             movlw   D'16'           ; Put 16 in W
+0030   2???           00210             goto    RetSDurMult
+0031   3008           00211             movlw   D'8'            ; Put 8 in W
+0032   2???           00212             goto    RetSDurMult
+0033   3004           00213             movlw   D'4'            ; Put 4 in W
+0034   2???           00214             goto    RetSDurMult
+0035   3002           00215             movlw   D'2'
+0036   2???           00216             goto    RetSDurMult
+0037   3001           00217             movlw   D'1'
+0038   008E           00218 RetSDurMult movwf   durMult         ; Move W to durMult
+0039   0814           00219             movf    setDurMultTmp,W ; Restore previous value of W
+003A   0008           00220             return
+                      00221 
+                      00222 ; Tune tables
+                      00223     ; These return encoded note values and durations.
+                      00224     ; The durations can be made smaller by dividing the duration a sensible constant.
+                      00225     ; To end a tune, you must return finish_pit as the final pitch and finish_dur as the final duration
+                      00226 
+                      00227             ; Happy Birthday to you
+003B   0782           00228 tune1       addwf   PCL,F
+003C   3420           00229             retlw   C4
+003D   3410           00230             retlw   C_dur /8
+003E   3420           00231             retlw   C4
+003F   3410           00232             retlw   C_dur /8
+0040   3422           00233             retlw   D4
+0041   3424           00234             retlw   D_dur /4
+0042   3420           00235             retlw   C4
+0043   3420           00236             retlw   C_dur /4
+0044   3425           00237             retlw   F4
+0045   342B           00238             retlw   F_dur /4
+MPASM  5.52                 DOORBELL_MAIN.ASM   12-17-2013  16:10:58         PAGE  6
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0046   3424           00239             retlw   E4
+0047   3452           00240             retlw   E_dur /2
+0048   3420           00241             retlw   C4
+0049   3410           00242             retlw   C_dur /8
+004A   3420           00243             retlw   C4
+004B   3410           00244             retlw   C_dur /8
+004C   3422           00245             retlw   D4
+004D   3424           00246             retlw   D_dur /4
+004E   3420           00247             retlw   C4
+004F   3420           00248             retlw   C_dur /4
+0050   3427           00249             retlw   G4
+0051   3431           00250             retlw   G_dur /4
+0052   3425           00251             retlw   F4
+0053   3457           00252             retlw   F_dur /2
+0054   3420           00253             retlw   C4
+0055   3410           00254             retlw   C_dur /8
+0056   3420           00255             retlw   C4
+0057   3410           00256             retlw   C_dur /8
+0058   3410           00257             retlw   C5
+0059   3420           00258             retlw   C_dur /4
+005A   3429           00259             retlw   A4
+005B   3437           00260             retlw   A_dur /4
+005C   3425           00261             retlw   F4
+005D   342B           00262             retlw   F_dur /4
+005E   3424           00263             retlw   E4
+005F   3429           00264             retlw   E_dur /4
+0060   3422           00265             retlw   D4
+0061   3424           00266             retlw   D_dur /4
+0062   342A           00267             retlw   A#4
+0063   341D           00268             retlw   A#_dur /8
+0064   342A           00269             retlw   A#4
+0065   341D           00270             retlw   A#_dur /8
+0066   3429           00271             retlw   A4
+0067   3437           00272             retlw   A_dur /4
+0068   3425           00273             retlw   F4
+0069   342B           00274             retlw   F_dur /4
+006A   3427           00275             retlw   G4
+006B   3431           00276             retlw   G_dur /4
+006C   3425           00277             retlw   F4
+006D   3457           00278             retlw   F_dur /2
+006E   342C           00279             retlw   finish_pit
+006F   3400           00280             retlw   finish_dur     ; end of tune
+                      00281 
+                      00282             ; Imperial march
+0070   0782           00283 tune2       addwf   PCL,F
+0071   3437           00284             retlw   G3
+0072   3431           00285             retlw   G_dur /4
+0073   3437           00286             retlw   G3
+0074   3431           00287             retlw   G_dur /4
+0075   3437           00288             retlw   G3
+0076   3431           00289             retlw   G_dur /4
+0077   3433           00290             retlw   D#3
+0078   3413           00291             retlw   D#_dur /8
+MPASM  5.52                 DOORBELL_MAIN.ASM   12-17-2013  16:10:58         PAGE  7
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0079   343A           00292             retlw   A#3
+007A   341D           00293             retlw   A#_dur /8
+007B   3437           00294             retlw   G3
+007C   3431           00295             retlw   G_dur /4
+007D   3433           00296             retlw   D#3
+007E   3413           00297             retlw   D#_dur /8
+007F   343A           00298             retlw   A#3
+0080   341D           00299             retlw   A#_dur /8
+0081   3437           00300             retlw   G3
+0082   3431           00301             retlw   G_dur /4
+0083   342C           00302             retlw   rest
+0084   341B           00303             retlw   rest_dur /4
+0085   3422           00304             retlw   D4
+0086   3424           00305             retlw   D_dur /4
+0087   3422           00306             retlw   D4
+0088   3424           00307             retlw   D_dur /4
+0089   3422           00308             retlw   D4
+008A   3424           00309             retlw   D_dur /4
+008B   3423           00310             retlw   D#4
+008C   3413           00311             retlw   D#_dur /8
+008D   343A           00312             retlw   A#3
+008E   341D           00313             retlw   A#_dur /8
+008F   3436           00314             retlw   F#3
+0090   342E           00315             retlw   F#_dur /4
+0091   3433           00316             retlw   D#3
+0092   3413           00317             retlw   D#_dur /8
+0093   343A           00318             retlw   A#3
+0094   341D           00319             retlw   A#_dur /8
+0095   3437           00320             retlw   G3
+0096   3431           00321             retlw   G_dur /4
+                      00322 ;            retlw   rest
+                      00323 ;            retlw   rest_dur /4
+                      00324 ;            retlw   G4
+                      00325 ;            retlw   G_dur /4
+                      00326 ;            retlw   G3
+                      00327 ;            retlw   G_dur /8
+                      00328 ;            retlw   G3
+                      00329 ;            retlw   G_dur /8
+                      00330 ;            retlw   G4
+                      00331 ;            retlw   G_dur /4
+                      00332 ;            retlw   F#3
+                      00333 ;            retlw   F#_dur /8
+                      00334 ;            retlw   F3
+                      00335 ;            retlw   F_dur /8
+                      00336 ;            retlw   E3
+                      00337 ;            retlw   E_dur /8
+                      00338 ;            retlw   D#3
+                      00339 ;            retlw   D#_dur /8
+                      00340 ;            retlw   E3
+                      00341 ;            retlw   E_dur /8
+0097   342C           00342             retlw   finish_pit
+0098   3400           00343             retlw   finish_dur     ; end of tune
+                      00344 
+MPASM  5.52                 DOORBELL_MAIN.ASM   12-17-2013  16:10:58         PAGE  8
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00345             ; The entire range of notes
+0099   0782           00346 tune3       addwf   PCL,F
+009A   3450           00347             retlw   C1
+009B   3408           00348             retlw   C_dur /10
+009C   3452           00349             retlw   D1
+009D   3409           00350             retlw   D_dur /10
+009E   3454           00351             retlw   E1
+009F   340A           00352             retlw   E_dur /10
+00A0   3455           00353             retlw   F1
+00A1   340A           00354             retlw   F_dur /10
+00A2   3457           00355             retlw   G1
+00A3   340C           00356             retlw   G_dur /10
+00A4   3459           00357             retlw   A1
+00A5   340D           00358             retlw   A_dur /10
+00A6   345B           00359             retlw   B1
+00A7   340F           00360             retlw   B_dur /10
+00A8   3440           00361             retlw   C2
+00A9   3408           00362             retlw   C_dur /10
+00AA   3442           00363             retlw   D2
+00AB   3409           00364             retlw   D_dur /10
+00AC   3444           00365             retlw   E2
+00AD   340A           00366             retlw   E_dur /10
+00AE   3445           00367             retlw   F2
+00AF   340A           00368             retlw   F_dur /10
+00B0   3447           00369             retlw   G2
+00B1   340C           00370             retlw   G_dur /10
+00B2   3449           00371             retlw   A2
+00B3   340D           00372             retlw   A_dur /10
+00B4   344B           00373             retlw   B2
+00B5   340F           00374             retlw   B_dur /10
+00B6   3430           00375             retlw   C3
+00B7   3408           00376             retlw   C_dur /10
+00B8   3432           00377             retlw   D3
+00B9   3409           00378             retlw   D_dur /10
+00BA   3434           00379             retlw   E3
+00BB   340A           00380             retlw   E_dur /10
+00BC   3435           00381             retlw   F3
+00BD   340A           00382             retlw   F_dur /10
+00BE   3437           00383             retlw   G3
+00BF   340C           00384             retlw   G_dur /10
+00C0   3439           00385             retlw   A3
+00C1   340D           00386             retlw   A_dur /10
+00C2   343B           00387             retlw   B3
+00C3   340F           00388             retlw   B_dur /10
+00C4   3420           00389             retlw   C4
+00C5   3408           00390             retlw   C_dur /10
+00C6   3422           00391             retlw   D4
+00C7   3409           00392             retlw   D_dur /10
+00C8   3424           00393             retlw   E4
+00C9   340A           00394             retlw   E_dur /10
+00CA   3425           00395             retlw   F4
+00CB   340A           00396             retlw   F_dur /10
+00CC   3427           00397             retlw   G4
+MPASM  5.52                 DOORBELL_MAIN.ASM   12-17-2013  16:10:58         PAGE  9
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+00CD   340C           00398             retlw   G_dur /10
+00CE   3429           00399             retlw   A4
+00CF   340D           00400             retlw   A_dur /10
+00D0   342B           00401             retlw   B4
+00D1   340F           00402             retlw   B_dur /10
+00D2   3410           00403             retlw   C5
+00D3   3408           00404             retlw   C_dur /10
+00D4   3412           00405             retlw   D5
+00D5   3409           00406             retlw   D_dur /10
+00D6   3414           00407             retlw   E5
+00D7   340A           00408             retlw   E_dur /10
+00D8   3415           00409             retlw   F5
+00D9   340A           00410             retlw   F_dur /10
+00DA   3417           00411             retlw   G5
+00DB   340C           00412             retlw   G_dur /10
+00DC   3419           00413             retlw   A5
+00DD   340D           00414             retlw   A_dur /10
+00DE   341B           00415             retlw   B5
+00DF   340F           00416             retlw   B_dur /10
+00E0   3400           00417             retlw   C6
+00E1   3408           00418             retlw   C_dur /10
+00E2   3402           00419             retlw   D6
+00E3   3409           00420             retlw   D_dur /10
+00E4   3404           00421             retlw   E6
+00E5   340A           00422             retlw   E_dur /10
+00E6   3405           00423             retlw   F6
+00E7   340A           00424             retlw   F_dur /10
+00E8   3407           00425             retlw   G6
+00E9   340C           00426             retlw   G_dur /10
+00EA   3409           00427             retlw   A6
+00EB   340D           00428             retlw   A_dur /10
+00EC   340B           00429             retlw   B6
+00ED   340F           00430             retlw   B_dur /10
+00EE   342C           00431             retlw   finish_pit
+00EF   3400           00432             retlw   finish_dur ; end of tune
+                      00433 
+                      00434             ; This is the tune the user has programmed into EEPROM memory
+00F0   2???           00435 tune4       call    eeRead  ; Read the pitch or duration from EEPROM memory
+00F1   0008           00436             return
+                      00437 
+                      00438 ; Setup
+                      00439             ; set Port B to input
+00F2   0185           00440 setup       clrf    PORTA       ; Initialise ports
+00F3   0186           00441             clrf    PORTB
+00F4   1683           00442             bsf     STATUS,RP0  ; select bank 1
+00F5   30FF           00443             movlw   B'11111111'
+00F6   0086           00444             movwf   TRISB
+                      00445 
+                      00446             ; set port A
+00F7   30FE           00447             movlw   B'11111110'
+00F8   0085           00448             movwf   TRISA
+                      00449 
+                      00450             ; set up tmr0
+MPASM  5.52                 DOORBELL_MAIN.ASM   12-17-2013  16:10:58         PAGE 10
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00451                 ; set up option register
+00F9   3082           00452             movlw   B'10000010'
+                      00453                     ;'1-------' Disable port B pull up resistors
+                      00454                     ;'--0-----' Increment tmr0 on internal clock
+                      00455                     ;'----0---' Assign prescaler to tmr0 not watchdog timer
+                      00456                     ;'-----010' Set prescaler at a ratio of 1:8 (This will be changed later depending on
+                             the octave of the note)
+                      00457                     ;'-0-0----' Irrelevant options
+00FA   0081           00458             movwf   OPTION_REG
+                      00459             ;set up interrupt configuration register
+00FB   3080           00460             movlw   B'10000000'
+                      00461                     ;'1-------' Global interrupt enable ON
+                      00462                     ;'--0-----' TMR0 Overflow interrupt enable OFF (We will turn this on when we want it
+                            )
+                      00463                     ;'-----0--' TMR0 Flag bit OFF (The interupt will not trigger if this is initially ON
+                            )
+                      00464                     ;'-0-00-00' Turn OFF all other (unused) interrupts and flag bits
+00FC   008B           00465             movwf   INTCON
+                      00466 
+                      00467             ; set up EEPROM
+00FD   0188           00468             clrf    EECON1      ; Clear all flags and read/write enable bits
+00FE   1283           00469             bcf     STATUS,RP0  ; Return to bank 0
+00FF   0189           00470             clrf    EEADR       ; Reset Read/write address to 0
+0100   0188           00471             clrf    EEDATA
+                      00472 
+                      00473             ; Initialise various registers used inside the program
+0101   0190           00474             clrf    tneLkpOfst  ; This initialises the lookup table offset, used in all the tunetables
+                      00475 
+                      00476 ; Start of the main program
+                      00477             ; Waits for a button press, or an IR signal
+0102   0189           00478 mainLoop    clrf    EEADR       ; Clear the EEADR register in case we need to program or read
+0103   0806           00479             movf    PORTB,W     ; Test if any of the tune programming buttons are being presed
+0104   39FE           00480             andlw   B'11111110' ; Mask off IR LED input
+0105   1D03           00481             btfss   STATUS,Z
+0106   2???           00482             call    progTune    ; If any of the programming buttons were pressed, call progtune
+0107   0103           00483             clrw
+0108   1C06           00484             btfss   PORTB,0
+0109   2???           00485             call    processIr   ; If an IR signal is being recieved, process it.
+010A   1885           00486             btfsc   PORTA,1
+010B   3002           00487             movlw   B'00000010' ;Set a status bit high if a tune button is presses - the order is set to
+                             match the order of the switches in the box!!
+010C   1905           00488             btfsc   PORTA,2
+010D   3004           00489             movlw   B'00000100'
+010E   1985           00490             btfsc   PORTA,3
+010F   3001           00491             movlw   B'00000001'
+0110   1A05           00492             btfsc   PORTA,4
+0111   3008           00493             movlw   B'00001000'
+0112   39FF           00494             andlw   B'11111111' ; test if w is empty
+0113   1903           00495             btfsc   STATUS,Z ; if zero, loop
+0114   2???           00496             goto    mainLoop
+0115   0091           00497             movwf   tuneSelect ; If switch is pressed, store which one was pressed in tuneSelect
+0116   2???           00498             call    playATune
+0117   2???           00499             goto    mainLoop
+MPASM  5.52                 DOORBELL_MAIN.ASM   12-17-2013  16:10:58         PAGE 11
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00500 
+                      00501             ; Process IR signal
+                      00502             ; For a valid signal, leave with W in the same format as the buttons would be (i.e the binar
+                            y word: 000000[Data2][Data1])
+                      00503             ; For an invalid signal, leave with W clear
+                      00504             ; Note the recieved signal with be the inverse of the transmitted signal
+                      00505                 ; Therefore the expected word recieved is: 0, NOT(Data1), NOT(Data2), 1, 1
+0118   0103           00506 processIr   clrw
+0119   2???           00507             call    delay3ms    ; Delay 3ms to get to the middle of the first pulse
+011A   1806           00508             btfsc   PORTB,0     ; Ensure the bit is a 0
+011B   2???           00509             goto    irFailure
+011C   2???           00510             call    delay6ms    ; Wait for next bit
+011D   1C06           00511             btfss   PORTB,0     ; If the line is low, set Data1 to 1
+011E   3801           00512             iorlw   B'00000001'
+011F   2???           00513             call    delay6ms    ; Wait for next bit
+0120   1C06           00514             btfss   PORTB,0     ; If the line is low, set Data2 to 1
+0121   3802           00515             iorlw   B'00000010'
+0122   2???           00516             call    delay6ms    ; Wait for next bit
+0123   1C06           00517             btfss   PORTB,0     ; Ensure remaining two bits are 1
+0124   2???           00518             goto    irFailure
+0125   1C06           00519             btfss   PORTB,0
+0126   2???           00520             goto    irFailure
+0127   2???           00521             call    irDecodeLkp
+0128   0008           00522             return
+0129   0103           00523 irFailure   clrw                ; If there was a problem with the word, clear W and exit
+012A   0008           00524             return
+                      00525 
+                      00526 ; Delay 6ms and delay 3ms
+                      00527     ; Each instruction takes 4 clock cycles = 1us
+                      00528     ; The inner loop takes 5 cycles (assuming it doesn't skip) = 5us
+                      00529         ; Therefore 200 iterations takes 1ms
+                      00530     ; The outer loop allows the inner loop to run 3 or 6 times
+                      00531         ; This takes 3 or 6ms
+012B   0097           00532 delay6ms    movwf   delay3msTmp     ; Preserve W
+012C   3006           00533             movlw   D'6'
+012D   0095           00534             movwf   outerLpCntr
+012E   2???           00535             goto    delayLoop
+012F   0097           00536 delay3ms    movwf   delay3msTmp     ; Preserve W
+0130   3003           00537             movlw   D'3'
+0131   0095           00538             movwf   outerLpCntr
+0132   30C8           00539 delayLoop   movlw   D'200'
+0133   0096           00540             movwf   innerLpCntr
+0134   0000           00541 innerLoop   nop
+0135   0B96           00542             decfsz  innerLpCntr,F
+0136   2???           00543             goto    innerLoop
+0137   0B95           00544 outerLoop   decfsz  outerLpCntr,F
+0138   2???           00545             goto    delayLoop
+0139   0817           00546             movf    delay3msTmp,W   ; Restore W
+013A   0008           00547             return
+                      00548 
+                      00549             ; This subroutine reads the user input from PORTB and programs in a tune
+013B   1C86           00550 progTune    btfss   PORTB,1     ; test if button 1 is pressed, if so call prog1
+013C   2???           00551             goto    prog2
+MPASM  5.52                 DOORBELL_MAIN.ASM   12-17-2013  16:10:58         PAGE 12
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+013D   3020           00552             movlw   C4          ; Write pitch to pitch
+013E   008F           00553             movwf   pitch
+013F   3020           00554             movlw   C_dur /4    ; Write duration to duration
+0140   008D           00555             movwf   duration
+0141   2???           00556             call    progEe      ; Save to EEPROM
+0142   2???           00557             goto    progSkp      ; Skip to end
+0143   1D06           00558 prog2       btfss   PORTB,2     ; test if button 2 is pressed, if so call prog2
+0144   2???           00559             goto    prog3
+0145   3022           00560             movlw   D4          ; Write pitch to pitch
+0146   008F           00561             movwf   pitch
+0147   3024           00562             movlw   D_dur /4    ; Write duration to duration
+0148   008D           00563             movwf   duration
+0149   2???           00564             call    progEe      ; Save to EEPROM
+014A   2???           00565             goto    progSkp      ; Skip to end
+014B   1D86           00566 prog3       btfss   PORTB,3     ; repeat for all remaining buttons
+014C   2???           00567             goto    prog4
+014D   3024           00568             movlw   E4          ; Write pitch to pitch
+014E   008F           00569             movwf   pitch
+014F   3029           00570             movlw   E_dur /4    ; Write duration to duration
+0150   008D           00571             movwf   duration
+0151   2???           00572             call    progEe      ; Save to EEPROM
+0152   2???           00573             goto    progSkp      ; Skip to end
+0153   1E06           00574 prog4       btfss   PORTB,4
+0154   2???           00575             goto    prog5
+0155   3025           00576             movlw   F4          ; Write pitch to pitch
+0156   008F           00577             movwf   pitch
+0157   302B           00578             movlw   F_dur /4    ; Write duration to duration
+0158   008D           00579             movwf   duration
+0159   2???           00580             call    progEe      ; Save to EEPROM
+015A   2???           00581             goto    progSkp      ; Skip to end
+015B   1E86           00582 prog5       btfss   PORTB,5
+015C   2???           00583             goto    prog6
+015D   3027           00584             movlw   G4          ; Write pitch to pitch
+015E   008F           00585             movwf   pitch
+015F   3031           00586             movlw   G_dur /4    ; Write duration to duration
+0160   008D           00587             movwf   duration
+0161   2???           00588             call    progEe      ; Save to EEPROM
+0162   2???           00589             goto    progSkp      ; Skip to end
+0163   1F06           00590 prog6       btfss   PORTB,6
+0164   2???           00591             goto    prog7
+0165   3029           00592             movlw   A4          ; Write pitch to pitch
+0166   008F           00593             movwf   pitch
+0167   3037           00594             movlw   A_dur /4    ; Write duration to duration
+0168   008D           00595             movwf   duration
+0169   2???           00596             call    progEe      ; Save to EEPROM
+016A   2???           00597             goto    progSkp      ; Skip to end
+016B   1F86           00598 prog7       btfss   PORTB,7
+016C   2???           00599             goto    progSkp
+016D   302B           00600             movlw   B4          ; Write pitch to pitch
+016E   008F           00601             movwf   pitch
+016F   303D           00602             movlw   B_dur /4    ; Write duration to duration
+0170   008D           00603             movwf   duration
+0171   2???           00604             call    progEe      ; Save to EEPROM
+MPASM  5.52                 DOORBELL_MAIN.ASM   12-17-2013  16:10:58         PAGE 13
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0172   303D           00605 progSkp     movlw   H'3D'       ; Make sure next address isn't the end of the EEPROM memory
+0173   0209           00606             subwf   EEADR,W
+0174   1803           00607             btfsc   STATUS,C    ; If the C flag is high, the result was negative. so we;re still in the 
+                            acceptable range
+0175   2???           00608             goto    retProgTune ; (RETurn from ProgTune) If we are at the end of the memory, exit.
+0176   0805           00609             movf    PORTA,W     ; Test if any port A buttons are being pressed
+0177   391E           00610             andlw   B'00011110' ; Mask off all pins that aren't the buttons
+0178   1903           00611             btfsc   STATUS,Z
+0179   2???           00612             goto    progTune    ; if a button wasn't pressed loop for the next note
+017A   302C           00613 retProgTune movlw   finish_pit  ; Write the finish pitch and duration
+017B   008F           00614             movwf   pitch
+017C   3000           00615             movlw   finish_dur
+017D   008D           00616             movwf   duration
+017E   2???           00617             call    progEe      ; Save to EEPROM
+017F   0189           00618             clrf    EEADR       ; clear EEADR for next read or write
+0180   0008           00619             return
+                      00620 
+                      00621             ; These functions programs the note in pitch and duration to EEPROM memory.
+                      00622                 ; It also plays the note to give the user feedback.
+0181   080F           00623 progEe      movf    pitch,W     ; Write the pitch
+0182   2???           00624             call    eeWrite
+0183   0A89           00625             incf    EEADR,F     ; Increment the address
+0184   080D           00626             movf    duration,W  ; Write the duration
+0185   2???           00627             call    eeWrite
+0186   0A89           00628             incf    EEADR,F     ; Increment the address
+0187   088D           00629             movf    duration,F  ; Test if duration is zero, if it is, it is programming the finish comma
+                            nd. so skip playAnote
+0188   1D03           00630             btfss   STATUS,Z
+0189   2???           00631             call    playANote   ; Play the note
+018A   0103           00632             clrw
+018B   0008           00633             return
+                      00634 
+                      00635             ; This function plays a single note from a coded pitch value in pitch and a duration value i
+                            n duration
+018C   080F           00636 playANote   movf    pitch,W
+018D   2???           00637             call    setPitch        ; Decode pitch
+018E   168B           00638             bsf     INTCON, T0IE    ; set the tmr0 interrupt enable, this will allow the interrupt to pl
+                            ay the note
+018F   1A8B           00639 noteLoop    btfsc   INTCON, T0IE    ; test if the note is still being played
+0190   2???           00640             goto    noteLoop        ; Wait for note to finish
+0191   0008           00641             return                  ; When note is over, return
+                      00642 
+                      00643             ; This subroutine is responsible for playing a tune
+0192   0810           00644 playATune   movf    tneLkpOfst,W  ; put the tune table lookup offset in W
+0193   2???           00645             call    getTuneData     ; Look up the next pitch in the tune
+0194   008F           00646             movwf   pitch
+0195   2???           00647             call    getTuneData     ; Lookup note duration
+0196   008D           00648             movwf   duration
+0197   088D           00649             movf    duration,F      ; test if duration is zero
+0198   1D03           00650             btfss   STATUS,Z        ; if zero, the tune is over
+0199   2???           00651             goto    skpPATRet       ; if not zero, skip this next section (skppatret = SKiP PlayATune RE
+                            Turn)
+019A   0190           00652             clrf    tneLkpOfst      ; if the tune is over, clear the lookup offset and return
+MPASM  5.52                 DOORBELL_MAIN.ASM   12-17-2013  16:10:58         PAGE 14
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+019B   0008           00653             return
+019C   2???           00654 skpPATRet   call    playANote       ; Play the note
+019D   302C           00655             movlw   rest            ; Play a short rest to make the tune sound more natural
+019E   008F           00656             movwf   pitch
+019F   3003           00657             movlw   rest_dur /20
+01A0   008D           00658             movwf   duration
+01A1   2???           00659             call    playANote
+01A2   2???           00660             goto    playATune       ; If the note is over, go back to the start of the subroutine to pla
+                            y the next note
+                      00661 
+                      00662             ; This subroutine directs the program to the relevant tune table.
+                      00663             ; See 'mainloop' for details of the value in tuneSelect
+                      00664             ; NOTE: It is important that this function does NOT change the W register.
+                      00665             ; This is because W contains either the lookup offset or the table return value.
+01A3   0810           00666 getTuneData movf    tneLkpOfst,W
+01A4   1811           00667             btfsc   tuneSelect,0    ; If the LSB is set we want tune1
+01A5   2???           00668             call    tune1
+01A6   1891           00669             btfsc   tuneSelect,1    ; If the bit 1 is set we want tune2
+01A7   2???           00670             call    tune2
+01A8   1911           00671             btfsc   tuneSelect,2    ; If the bit 2 is set we want tune3
+01A9   2???           00672             call    tune3
+01AA   1991           00673             btfsc   tuneSelect,3    ; If the bit 3 is set we want tune4
+01AB   2???           00674             call    tune4
+01AC   0A90           00675             incf    tneLkpOfst,F
+01AD   0008           00676             return
+                      00677 
+                      00678             ; This subroutine decodes the pitch value returned by the tune tables into the start value o
+                            f the TMR0 register and sets the TMR0 scaler
+                      00679             ; The value returned by the tune table is passed to setpitch in W.
+                      00680             ; The upper nibble contains the TMR0 scaler
+                      00681             ; The lower nibble contains a lookup offset for the TMR0 start value (see line 11 for more d
+                            etails)
+01AE   0093           00682 setPitch    movwf   setPitchTemp    ; store intact working register to preserve lookup offset
+01AF   3970           00683             andlw   B'01110000'    ; mask off the TMR0 scaler bits
+01B0   0092           00684             movwf   tmr0Scaler          ; Put the scaler value into tmr0Scaler
+01B1   0C92           00685             rrf     tmr0Scaler,F        ; Shift the scaler bits to the same place as they are in in OPTI
+                            ON_REG (The least significant three bits)
+01B2   0C92           00686             rrf     tmr0Scaler,F
+01B3   0C92           00687             rrf     tmr0Scaler,F
+01B4   0C92           00688             rrf     tmr0Scaler,F
+01B5   1683           00689             bsf     STATUS,RP0      ; select bank 1 to access OPTION_REG
+01B6   0801           00690             movf    OPTION_REG,W      ; Copy OPTION_REG to W
+01B7   39F8           00691             andlw   B'11111000'     ; Mask off unrelated bits to presrve them
+01B8   0412           00692             iorwf   tmr0Scaler,W        ; Copy scaler bits to W
+01B9   0081           00693             movwf   OPTION_REG      ; Copy W back to OPTION_REG
+01BA   1283           00694             bcf     STATUS,RP0      ; Return to bank 0
+01BB   300F           00695             movlw   B'00001111'     ; Mask off the part of the value returned by the tune table which co
+                            ntains the TMR0 start value lookup offset
+01BC   0513           00696             andwf   setPitchTemp,W
+01BD   2???           00697             call    lookupPitch     ; Lookup the TMR0 start value for that note
+01BE   008F           00698             movwf   pitch           ; Put this in "pitch"
+01BF   2???           00699             call    setDurMult
+01C0   0008           00700             return
+MPASM  5.52                 DOORBELL_MAIN.ASM   12-17-2013  16:10:58         PAGE 15
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00701 
+                      00702             ; This subroutine writes that data in W to the address in EEADR
+01C1   0088           00703 eeWrite     movwf   EEDATA        ; Move W to EEDATA
+01C2   1683           00704             bsf     STATUS,RP0      ; Select Bank 1
+01C3   138B           00705             bcf     INTCON,GIE      ; Disable interrupts
+01C4   1508           00706             bsf     EECON1,WREN     ; Enable EEPROM write
+                      00707             ; Begin required write sequence
+01C5   3055           00708             movlw   H'55'
+01C6   0089           00709             movwf   EECON2
+01C7   30AA           00710             movlw   H'AA'
+01C8   0089           00711             movwf   EECON2
+01C9   1488           00712             bsf     EECON1, WR      ; Begin Write
+                      00713             ; End required write sequence
+01CA   178B           00714             bsf     INTCON, GIE    ; re-enable interrupts
+                      00715             ; Wait for bit to be written
+01CB   1E08           00716 eeWriteLoop btfss   EECON1,EEIF     ; Test write operation interrupt flag
+01CC   2???           00717             goto    eeWriteLoop     ; Loop until write completes
+01CD   1208           00718             bcf     EECON1,EEIF     ; Clear interrupt flag
+01CE   1283           00719             bcf     STATUS,RP0      ; Select Bank 0
+01CF   0008           00720             return
+                      00721 
+                      00722             ; This subroutine reads the value of the data in the EEPROM address corresponding to the val
+                            ue of W, and returns this value in W
+01D0   0089           00723 eeRead      movwf   EEADR           ; Move address to EEADR
+01D1   1683           00724             bsf     STATUS,RP0      ; Select Bank 1
+01D2   1408           00725             bsf     EECON1,RD       ; Read Value to EEDATA
+01D3   1283           00726             bcf     STATUS,RP0      ; Select Bank 0
+01D4   0808           00727             movf    EEDATA,W        ; Return data in W
+01D5   0008           00728             return
+                      00729 
+3FF1                  00730             end                 ; End of program
+MPASM  5.52                 DOORBELL_MAIN.ASM   12-17-2013  16:10:58         PAGE 16
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+A#1                               0000005A
+A#2                               0000004A
+A#3                               0000003A
+A#4                               0000002A
+A#5                               0000001A
+A#6                               0000000A
+A#_dur                            000000E9
+A1                                00000059
+A2                                00000049
+A3                                00000039
+A4                                00000029
+A5                                00000019
+A6                                00000009
+A_dur                             000000DC
+B1                                0000005B
+B2                                0000004B
+B3                                0000003B
+B4                                0000002B
+B5                                0000001B
+B6                                0000000B
+B_dur                             000000F7
+C                                 00000000
+C#1                               00000051
+C#2                               00000041
+C#3                               00000031
+C#4                               00000021
+C#5                               00000011
+C#6                               00000001
+C#_dur                            0000008B
+C1                                00000050
+C2                                00000040
+C3                                00000030
+C4                                00000020
+C5                                00000010
+C6                                00000000
+C_dur                             00000083
+D#1                               00000053
+D#2                               00000043
+D#3                               00000033
+D#4                               00000023
+D#5                               00000013
+D#6                               00000003
+D#_dur                            0000009C
+D1                                00000052
+D2                                00000042
+D3                                00000032
+D4                                00000022
+D5                                00000012
+D6                                00000002
+DC                                00000001
+D_dur                             00000093
+E1                                00000054
+E2                                00000044
+MPASM  5.52                 DOORBELL_MAIN.ASM   12-17-2013  16:10:58         PAGE 17
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+E3                                00000034
+E4                                00000024
+E5                                00000014
+E6                                00000004
+EEADR                             00000009
+EECON1                            00000088
+EECON2                            00000089
+EEDATA                            00000008
+EEIE                              00000006
+EEIF                              00000004
+E_dur                             000000A5
+F                                 00000001
+F#1                               00000056
+F#2                               00000046
+F#3                               00000036
+F#4                               00000026
+F#5                               00000016
+F#6                               00000006
+F#_dur                            000000B9
+F1                                00000055
+F2                                00000045
+F3                                00000035
+F4                                00000025
+F5                                00000015
+F6                                00000005
+FSR                               00000004
+F_dur                             000000AF
+G#1                               00000058
+G#2                               00000048
+G#3                               00000038
+G#4                               00000028
+G#5                               00000018
+G#6                               00000008
+G#_dur                            000000D0
+G1                                00000057
+G2                                00000047
+G3                                00000037
+G4                                00000027
+G5                                00000017
+G6                                00000007
+GIE                               00000007
+G_dur                             000000C4
+INDF                              00000000
+INTCON                            0000000B
+INTE                              00000004
+INTEDG                            00000006
+INTF                              00000001
+IRP                               00000007
+NOT_PD                            00000003
+NOT_RBPU                          00000007
+NOT_TO                            00000004
+OPTION_REG                        00000081
+PCL                               00000002
+MPASM  5.52                 DOORBELL_MAIN.ASM   12-17-2013  16:10:58         PAGE 18
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+PCLATH                            0000000A
+PORTA                             00000005
+PORTB                             00000006
+PS0                               00000000
+PS1                               00000001
+PS2                               00000002
+PSA                               00000003
+RA0                               00000000
+RA1                               00000001
+RA2                               00000002
+RA3                               00000003
+RA4                               00000004
+RB0                               00000000
+RB1                               00000001
+RB2                               00000002
+RB3                               00000003
+RB4                               00000004
+RB5                               00000005
+RB6                               00000006
+RB7                               00000007
+RBIE                              00000003
+RBIF                              00000000
+RD                                00000000
+RP0                               00000005
+RP1                               00000006
+RetSDurMult                       00000038
+STATUS                            00000003
+T0CS                              00000005
+T0IE                              00000005
+T0IF                              00000002
+T0SE                              00000004
+TMR0                              00000001
+TMR0IE                            00000005
+TMR0IF                            00000002
+TRISA                             00000085
+TRISA0                            00000000
+TRISA1                            00000001
+TRISA2                            00000002
+TRISA3                            00000003
+TRISA4                            00000004
+TRISB                             00000086
+TRISB0                            00000000
+TRISB1                            00000001
+TRISB2                            00000002
+TRISB3                            00000003
+TRISB4                            00000004
+TRISB5                            00000005
+TRISB6                            00000006
+TRISB7                            00000007
+W                                 00000000
+WR                                00000001
+WREN                              00000002
+WRERR                             00000003
+MPASM  5.52                 DOORBELL_MAIN.ASM   12-17-2013  16:10:58         PAGE 19
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+Z                                 00000002
+_CONFIG                           00002007
+_CP_OFF                           00003FFF
+_CP_ON                            0000000F
+_DEVID1                           00002006
+_FOSC_EXTRC                       00003FFF
+_FOSC_HS                          00003FFE
+_FOSC_LP                          00003FFC
+_FOSC_XT                          00003FFD
+_HS_OSC                           00003FFE
+_IDLOC0                           00002000
+_IDLOC1                           00002001
+_IDLOC2                           00002002
+_IDLOC3                           00002003
+_LP_OSC                           00003FFC
+_PWRTE_OFF                        00003FFF
+_PWRTE_ON                         00003FF7
+_RC_OSC                           00003FFF
+_WDTE_OFF                         00003FFB
+_WDTE_ON                          00003FFF
+_WDT_OFF                          00003FFB
+_WDT_ON                           00003FFF
+_XT_OSC                           00003FFD
+__16F84A                          00000001
+delay3ms                          0000012F
+delay3msTmp                       00000017
+delay6ms                          0000012B
+delayLoop                         00000132
+durMult                           0000000E
+duration                          0000000D
+eeRead                            000001D0
+eeWrite                           000001C1
+eeWriteLoop                       000001CB
+finish_dur                        00000000
+finish_pit                        0000002C
+getTuneData                       000001A3
+innerLoop                         00000134
+innerLpCntr                       00000016
+intTemp                           0000000C
+irDecodeLkp                       00000025
+irFailure                         00000129
+lookupPitch                       00000017
+mainLoop                          00000102
+noteLoop                          0000018F
+outerLoop                         00000137
+outerLpCntr                       00000015
+pitch                             0000000F
+playANote                         0000018C
+playATune                         00000192
+processIr                         00000118
+prog2                             00000143
+prog3                             0000014B
+prog4                             00000153
+MPASM  5.52                 DOORBELL_MAIN.ASM   12-17-2013  16:10:58         PAGE 20
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+prog5                             0000015B
+prog6                             00000163
+prog7                             0000016B
+progEe                            00000181
+progSkp                           00000172
+progTune                          0000013B
+rest                              0000002C
+rest_dur                          0000006E
+retFrmInt                         00000014
+retProgTune                       0000017A
+setDurMult                        0000002A
+setDurMultTmp                     00000014
+setPitch                          000001AE
+setPitchTemp                      00000013
+setup                             000000F2
+skipToggle                        0000000E
+skpPATRet                         0000019C
+tmr0Scaler                        00000012
+tneLkpOfst                        00000010
+tune1                             0000003B
+tune2                             00000070
+tune3                             00000099
+tune4                             000000F0
+tuneSelect                        00000011
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :     0 reported,    13 suppressed
+
+
